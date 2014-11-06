@@ -18,7 +18,7 @@
 				android:paddingLeft="15px"
 				android:textStyle="bold"
 				android:textColor="#ffffff" />
-			<TextView android:text="Released under the GPL, v3.\nhttp://n1torch.googlecode.com/\n\nThanks to David Prieto for new UI design.\n\nContact: bbuxton@gmail.com\n\n4/1/2011"
+			<TextView android:text="Based on n1torch\nhttps://code.google.com/p/n1torch/\n\nReleased under the GPL, v3.\nhttps://github.com/Trugath/n1torch"
 				android:layout_width="fill_parent" 
 				android:layout_height="wrap_content"
 				android:paddingLeft="15px"		
