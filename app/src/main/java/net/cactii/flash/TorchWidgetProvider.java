@@ -20,7 +20,7 @@ import java.util.List;
 
 public class TorchWidgetProvider extends AppWidgetProvider {
 
-    static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash",
+    private static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash",
             "net.cactii.flash.TorchWidgetProvider");
     private static TorchWidgetProvider sInstance;
 
@@ -37,12 +37,11 @@ public class TorchWidgetProvider extends AppWidgetProvider {
         launchIntent.setClass(context, TorchWidgetProvider.class);
         launchIntent.addCategory(Intent.CATEGORY_ALTERNATIVE);
         launchIntent.setData(Uri.parse("custom:" + appWidgetId + "/" + buttonId));
-        PendingIntent pi = PendingIntent
+        return PendingIntent
                 .getBroadcast(context, 0 /* no requestCode */, launchIntent, 0 /*
                                                                         * no
                                                                         * flags
                                                                         */);
-        return pi;
     }
 
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -74,11 +73,6 @@ public class TorchWidgetProvider extends AppWidgetProvider {
                     this.updateAllStates(context);
                     return;
                 }
-
-                int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
-                if (extras != null)
-                    appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
-                            AppWidgetManager.INVALID_APPWIDGET_ID);
 
                 pendingIntent = new Intent(context, TorchService.class);
 
@@ -126,7 +120,7 @@ public class TorchWidgetProvider extends AppWidgetProvider {
             this.updateState(context, id);
     }
 
-    public void updateState(Context context, int appWidgetId) {
+    void updateState(Context context, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
