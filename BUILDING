@@ -1,2 +1,0 @@
-set
-run ndk-build from app\src\main\

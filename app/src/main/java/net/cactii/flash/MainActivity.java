@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,9 +30,8 @@ public class MainActivity extends Activity {
 
   public static MainActivity ma;
 	public TorchWidgetProvider mWidgetProvider;
-	
-	public FlashDevice device;
-	// Is the strobe running?
+
+    // Is the strobe running?
 	public Boolean strobing;
 	public RelativeLayout strobeRow;
 	// Thread to handle strobing
@@ -76,7 +74,6 @@ public class MainActivity extends Activity {
         mTorchThreadRunning = false;
 
         mWidgetProvider = TorchWidgetProvider.getInstance();
-        device = FlashDevice.getInstance();
         
         // Preferences
         this.mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
@@ -155,10 +152,6 @@ public class MainActivity extends Activity {
       if (!this.mPrefs.getBoolean("aboutSeen", false)) {
         this.openAboutDialog();
         this.mPrefsEditor.putBoolean("aboutSeen", true);
-      }
-
-      if (!device.Writable()) {
-      	Log.d("Torch", "Cant open flash RW");
       }
     }
 
