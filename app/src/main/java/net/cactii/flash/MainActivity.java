@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -32,17 +33,9 @@ public class MainActivity extends Activity {
 	public TorchWidgetProvider mWidgetProvider;
 	
 	public FlashDevice device;
-	// On button
-	private Button buttonOn;
-	// Strobe toggle
-	private CheckBox buttonStrobe;
 	// Is the strobe running?
 	public Boolean strobing;
-
 	public RelativeLayout strobeRow;
-
-	public MySurface surfaceView;
-
 	// Thread to handle strobing
 	public boolean mTorchThreadRunning;
 	public boolean mTorchOn;
@@ -50,14 +43,18 @@ public class MainActivity extends Activity {
 	public SeekBar slider;
 	// Period of strobe, in milliseconds
 	public int strobeperiod;
-	// Strobe has timed out
-	private Context context;
 	// Label showing strobe frequency
 	public TextView strobeLabel;
-
 	// Preferences
 	public SharedPreferences mPrefs;
 	public SharedPreferences.Editor mPrefsEditor = null;
+    public Camera mCamera;
+    // On button
+    private Button buttonOn;
+    // Strobe toggle
+    private CheckBox buttonStrobe;
+    // Strobe has timed out
+    private Context context;
 
     /** Called when the activity is first created. */
     @Override

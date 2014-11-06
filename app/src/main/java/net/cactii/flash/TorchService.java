@@ -1,9 +1,5 @@
 package net.cactii.flash;
 
-import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -13,26 +9,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Camera;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.SurfaceView;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class TorchService extends Service {
   public static final String MSG_TAG = "TorchNotRoot";
-
-  private Camera mCamera;
-  private Camera.Parameters mParams;
-  
-  private NotificationManager mNotificationManager;
-  private Notification mNotification;
-  
   public TimerTask mStrobeTask;
   public Timer mStrobeTimer;
   public int mStrobePeriod;
-  
   public Handler mHandler;
+    private Camera mCamera;
+    private Camera.Parameters mParams;
+    private NotificationManager mNotificationManager;
+    private Notification mNotification;
   private IntentReceiver mReceiver;
 
   private Runnable mStrobeRunnable;
@@ -80,8 +73,7 @@ public class TorchService extends Service {
       e.printStackTrace();
     }
 
-    MainActivity.ma.surfaceView = new MySurface(this);
-    MainActivity.ma.surfaceView.mCamera = mCamera;
+      MainActivity.ma.mCamera = mCamera;
 
     if (intent != null && intent.getBooleanExtra("strobe", false)) {
       this.mCamera.startPreview();
@@ -92,14 +84,6 @@ public class TorchService extends Service {
       this.mParams = mCamera.getParameters();
       this.mParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
       this.mCamera.setParameters(this.mParams);
-      try {
-        if (Build.VERSION.SDK_INT > 10)
-          this.mCamera.setPreviewDisplay(MainActivity.ma.surfaceView.getHolder());
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      this.mCamera.startPreview();
     }
     
     this.mReceiver = new IntentReceiver();
@@ -134,21 +118,23 @@ public class TorchService extends Service {
     this.mStrobePeriod = period/4;
     this.mStrobeTimer.schedule(this.mStrobeTask, 0, this.mStrobePeriod);
   }
-  
-  public class WrapperTask extends TimerTask {
-    private final Runnable target;
-    public WrapperTask(Runnable target) {
-      this.target = target;
-    }
-    public void run() {
-      target.run();
-    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO Auto-generated method stub
+        return null;
   }
-  
-  @Override
-  public IBinder onBind(Intent intent) {
-    // TODO Auto-generated method stub
-    return null;
+
+    public class WrapperTask extends TimerTask {
+        private final Runnable target;
+
+        public WrapperTask(Runnable target) {
+            this.target = target;
+        }
+
+        public void run() {
+            target.run();
+        }
   }
 
   public class IntentReceiver extends BroadcastReceiver {
