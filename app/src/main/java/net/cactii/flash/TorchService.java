@@ -21,7 +21,8 @@ import java.util.TimerTask;
 
 public class TorchService extends Service {
     static final String SET_STROBE = "net.cactii.flash.SET_STROBE";
-    private static final String MSG_TAG = "TorchNotRoot";
+
+    private static final String MSG_TAG = "TorchService";
     private TimerTask mStrobeTask;
     private Timer mStrobeTimer;
     private Camera mCamera;

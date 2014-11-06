@@ -8,16 +8,13 @@ import android.util.Log;
 
 public class WidgetOptionsActivity extends PreferenceActivity {
 
-    private int mAppWidgetId;
-
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        int mAppWidgetId = 0;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            mAppWidgetId = extras.getInt(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
             Log.d("TorchOptions", "Widget id: " + mAppWidgetId);
         }
 
