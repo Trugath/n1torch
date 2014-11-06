@@ -87,10 +87,10 @@ public class TorchService extends Service {
         }
 
         this.mReceiver = new IntentReceiver();
-        registerReceiver(this.mReceiver, new IntentFilter("net.cactii.flash.SET_STROBE"));
+        registerReceiver(this.mReceiver, new IntentFilter(SET_STROBE));
 
-        Notification notification = new Notification(R.drawable.notification_icon, "Torch on", System.currentTimeMillis());
-        notification.setLatestEventInfo(this, "Torch on", "Torch currently on", PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0));
+        Notification notification = new Notification(R.drawable.notification_icon, getString(R.string.notification_torch_on), System.currentTimeMillis());
+        notification.setLatestEventInfo(this, getString(R.string.notification_torch_on), getString(R.string.notification_torch_currently_on), PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0));
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(0, notification);

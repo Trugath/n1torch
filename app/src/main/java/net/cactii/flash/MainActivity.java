@@ -53,13 +53,13 @@ public class MainActivity extends Activity {
 
                 if (!TorchService.isRunning(getApplicationContext())) {
                     startService(intent);
-                    buttonOn.setText("Off");
+                    buttonOn.setText(getString(R.string.off));
                     buttonStrobe.setEnabled(false);
                     if (!buttonStrobe.isChecked())
                         slider.setEnabled(false);
                 } else {
                     stopService(intent);
-                    buttonOn.setText("On");
+                    buttonOn.setText(getString(R.string.on));
                     buttonStrobe.setEnabled(true);
                     slider.setEnabled(true);
                 }
@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
         setProgressBarVisibility(true);
         slider.setHorizontalScrollBarEnabled(true);
         slider.setProgress(200 - preferences.getInt("strobeperiod", 100));
-        strobeLabel.setText("Strobe frequency: " + 500 / strobeperiod + "Hz");
+        strobeLabel.setText(getString(R.string.strobe_frequency) + 500 / strobeperiod + getString(R.string.hz));
         slider.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             @Override
@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
                 int strobeperiod = 201 - progress;
                 if (strobeperiod < 20)
                     strobeperiod = 20;
-                strobeLabel.setText("Strobe frequency: " + 500 / strobeperiod + "Hz");
+                strobeLabel.setText(getString(R.string.strobe_frequency) + 500 / strobeperiod + getString(R.string.hz));
 
                 preferences.edit()
                         .putInt("strobeperiod", strobeperiod)
@@ -125,7 +125,7 @@ public class MainActivity extends Activity {
 
     public void onResume() {
         if (TorchService.isRunning(this)) {
-            ((Button) findViewById(R.id.buttonOn)).setText("Off");
+            ((Button) findViewById(R.id.buttonOn)).setText(getString(R.string.off));
 
             final CheckBox buttonStrobe = (CheckBox) findViewById(R.id.strobe);
             buttonStrobe.setEnabled(false);
@@ -139,7 +139,7 @@ public class MainActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean supRetVal = super.onCreateOptionsMenu(menu);
-        menu.addSubMenu(0, 0, 0, "About Torch");
+        menu.addSubMenu(0, 0, 0, getString(R.string.about_torch));
         return supRetVal;
     }
 
@@ -155,9 +155,9 @@ public class MainActivity extends Activity {
         LayoutInflater li = LayoutInflater.from(this);
         View view = li.inflate(R.layout.aboutview, null);
         new AlertDialog.Builder(MainActivity.this)
-                .setTitle("About")
+                .setTitle(getString(R.string.about))
                 .setView(view)
-                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                .setNegativeButton(getString(R.string.close), new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
                         //Log.d(MSG_TAG, "Close pressed");
                     }

@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nexus Torch</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="about_torch">About Torch</string>
+    <string name="about">About</string>
+    <string name="close">Close</string>
+    <string name="hz">Hz</string>
+    <string name="strobe_frequency">"Strobe frequency: "</string>
+    <string name="notification_torch_on">Torch on</string>
+    <string name="notification_torch_currently_on">Torch currently on</string>
 </resources>
