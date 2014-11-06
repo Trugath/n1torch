@@ -1,11 +1,9 @@
 package net.cactii.flash;
 
-import java.util.List;
-
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.PendingIntent;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -13,23 +11,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
+
+import java.util.List;
 
 public class TorchWidgetProvider extends AppWidgetProvider {
 
-  public FlashDevice device;
+    static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash",
+            "net.cactii.flash.TorchWidgetProvider");
   private static TorchWidgetProvider sInstance;
-  public boolean mTorchOn;
-  public Thread brightThread;
-  public SharedPreferences mPrefs;
-
-  static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash",
-      "net.cactii.flash.TorchWidgetProvider");
+    public FlashDevice device;
 
   static synchronized TorchWidgetProvider getInstance() {
     if (sInstance == null) {
@@ -38,31 +32,27 @@ public class TorchWidgetProvider extends AppWidgetProvider {
     return sInstance;
   }
 
-  public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-    final int N = appWidgetIds.length;
-    for (int i = 0; i < N; i++) {
-      int appWidgetId = appWidgetIds[i];
-      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-
-      views.setOnClickPendingIntent(R.id.btn, getLaunchPendingIntent(context, appWidgetId, 0));
-
-      this.updateState(context, appWidgetId);
-      appWidgetManager.updateAppWidget(appWidgetId, views);
-    }
-  }
-
   private static PendingIntent getLaunchPendingIntent(Context context, int appWidgetId, int buttonId) {
-    Intent launchIntent = new Intent();
-    Log.d("TorchWidget", "WIdget id: " + appWidgetId);
-    launchIntent.setClass(context, TorchWidgetProvider.class);
-    launchIntent.addCategory(Intent.CATEGORY_ALTERNATIVE);
-    launchIntent.setData(Uri.parse("custom:" + appWidgetId + "/" + buttonId));
-    PendingIntent pi = PendingIntent
-        .getBroadcast(context, 0 /* no requestCode */, launchIntent, 0 /*
+      Intent launchIntent = new Intent();
+      Log.d("TorchWidget", "WIdget id: " + appWidgetId);
+      launchIntent.setClass(context, TorchWidgetProvider.class);
+      launchIntent.addCategory(Intent.CATEGORY_ALTERNATIVE);
+      launchIntent.setData(Uri.parse("custom:" + appWidgetId + "/" + buttonId));
+      PendingIntent pi = PendingIntent
+              .getBroadcast(context, 0 /* no requestCode */, launchIntent, 0 /*
                                                                         * no
                                                                         * flags
                                                                         */);
-    return pi;
+      return pi;
+  }
+
+    public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+        for (int appWidgetId : appWidgetIds) {
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+            views.setOnClickPendingIntent(R.id.btn, getLaunchPendingIntent(context, appWidgetId, 0));
+            this.updateState(context, appWidgetId);
+            appWidgetManager.updateAppWidget(appWidgetId, views);
+        }
   }
 
   public void onReceive(Context context, Intent intent) {
