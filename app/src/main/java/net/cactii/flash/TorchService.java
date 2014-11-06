@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.Camera;
-import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -21,15 +20,12 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TorchService extends Service {
+    static final String SET_STROBE = "net.cactii.flash.SET_STROBE";
     private static final String MSG_TAG = "TorchNotRoot";
     private TimerTask mStrobeTask;
     private Timer mStrobeTimer;
-    private int mStrobePeriod;
-    private Handler mHandler;
     private Camera mCamera;
     private IntentReceiver mReceiver;
-
-    private Runnable mStrobeRunnable;
 
     static boolean isRunning(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
@@ -42,8 +38,8 @@ public class TorchService extends Service {
         return false;
     }
 
-    public void onCreate() {
-        this.mStrobeRunnable = new Runnable() {
+    private Runnable getStrobeRunnable() {
+        return new Runnable() {
             public int mCounter = 4;
             public boolean mOn;
 
@@ -64,13 +60,11 @@ public class TorchService extends Service {
                 }
             }
         };
-        this.mStrobeTask = new WrapperTask(this.mStrobeRunnable);
+    }
 
+    public void onCreate() {
+        this.mStrobeTask = new WrapperTask(getStrobeRunnable());
         this.mStrobeTimer = new Timer();
-
-        this.mHandler = new Handler() {
-
-        };
     }
 
     @Override
@@ -84,9 +78,7 @@ public class TorchService extends Service {
 
         if (intent != null && intent.getBooleanExtra("strobe", false)) {
             this.mCamera.startPreview();
-            this.mStrobePeriod = intent.getIntExtra("period", 200) / 4;
-            this.mStrobeTimer.schedule(this.mStrobeTask, 0,
-                    this.mStrobePeriod);
+            this.mStrobeTimer.schedule(this.mStrobeTask, 0, intent.getIntExtra("period", 200) / 4);
         } else {
             Camera.Parameters parameters = mCamera.getParameters();
             parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
@@ -107,20 +99,13 @@ public class TorchService extends Service {
 
 
     public void onDestroy() {
+        this.mStrobeTask.cancel();
         this.mStrobeTimer.cancel();
         this.mCamera.stopPreview();
         this.mCamera.release();
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).cancelAll();
         this.unregisterReceiver(this.mReceiver);
         stopForeground(true);
-    }
-
-    void Reshedule(int period) {
-        this.mStrobeTask.cancel();
-        this.mStrobeTask = new WrapperTask(this.mStrobeRunnable);
-
-        this.mStrobePeriod = period / 4;
-        this.mStrobeTimer.schedule(this.mStrobeTask, 0, this.mStrobePeriod);
     }
 
     @Override
@@ -145,14 +130,11 @@ public class TorchService extends Service {
 
         @Override
         public void onReceive(Context context, final Intent intent) {
-            mHandler.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    Reshedule(intent.getIntExtra("period", 200));
-                }
-
-            });
+            if (intent.getAction().equals(TorchService.SET_STROBE)) {
+                mStrobeTask.cancel();
+                mStrobeTask = new WrapperTask(getStrobeRunnable());
+                mStrobeTimer.schedule(mStrobeTask, 0, intent.getIntExtra("period", 200) / 4);
+            }
         }
     }
 }

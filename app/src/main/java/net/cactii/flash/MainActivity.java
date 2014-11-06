@@ -86,7 +86,7 @@ public class MainActivity extends Activity {
                         .putInt("strobeperiod", strobeperiod)
                         .apply();
 
-                Intent intent = new Intent("net.cactii.flash.SET_STROBE");
+                Intent intent = new Intent(TorchService.SET_STROBE);
                 intent.putExtra("period", strobeperiod);
                 sendBroadcast(intent);
             }

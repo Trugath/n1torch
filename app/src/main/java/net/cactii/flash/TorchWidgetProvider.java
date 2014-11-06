@@ -12,22 +12,30 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import java.lang.ref.WeakReference;
+
 public class TorchWidgetProvider extends AppWidgetProvider {
 
-    private static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash",
-            "net.cactii.flash.TorchWidgetProvider");
-    private static TorchWidgetProvider sInstance;
+    private static final ComponentName THIS_APPWIDGET = new ComponentName("net.cactii.flash", "net.cactii.flash.TorchWidgetProvider");
+
+    private static WeakReference<TorchWidgetProvider> sInstance = null;
 
     static synchronized TorchWidgetProvider getInstance() {
-        if (sInstance == null) {
-            sInstance = new TorchWidgetProvider();
+        TorchWidgetProvider result;
+
+        // get stored result if it exists
+        if (sInstance != null && (result = sInstance.get()) != null) {
+            return result;
         }
-        return sInstance;
+
+        // new instance
+        sInstance = new WeakReference<TorchWidgetProvider>(result = new TorchWidgetProvider());
+        return result;
     }
 
     private static PendingIntent getLaunchPendingIntent(Context context, int appWidgetId, int buttonId) {
         Intent launchIntent = new Intent();
-        Log.d("TorchWidget", "WIdget id: " + appWidgetId);
+        Log.d("TorchWidget", "Widget id: " + appWidgetId);
         launchIntent.setClass(context, TorchWidgetProvider.class);
         launchIntent.addCategory(Intent.CATEGORY_ALTERNATIVE);
         launchIntent.setData(Uri.parse("custom:" + appWidgetId + "/" + buttonId));
@@ -69,11 +77,6 @@ public class TorchWidgetProvider extends AppWidgetProvider {
 
                 pendingIntent = new Intent(context, TorchService.class);
 
-                pendingIntent.putExtra("bright", mPrefs.getBoolean("widget_bright_" + widgetId, false));
-                if (mPrefs.getBoolean("widget_strobe_" + widgetId, false)) {
-                    pendingIntent.putExtra("strobe", true);
-                    pendingIntent.putExtra("period", mPrefs.getInt("widget_strobe_freq_" + widgetId, 200));
-                }
                 if (TorchService.isRunning(context)) {
                     context.stopService(pendingIntent);
                 } else {
@@ -98,20 +101,12 @@ public class TorchWidgetProvider extends AppWidgetProvider {
 
     void updateState(Context context, int appWidgetId) {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         if (TorchService.isRunning(context)) {
             views.setImageViewResource(R.id.img_torch, R.drawable.icon);
         } else {
             views.setImageViewResource(R.id.img_torch, R.drawable.widget_off);
         }
-
-        if (prefs.getBoolean("widget_strobe_" + appWidgetId, false))
-            views.setTextViewText(R.id.ind, "Strobe");
-        else if (prefs.getBoolean("widget_bright_" + appWidgetId, false))
-            views.setTextViewText(R.id.ind, "Bright");
-        else
-            views.setTextViewText(R.id.ind, "Torch");
 
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
         gm.updateAppWidget(appWidgetId, views);
