@@ -2,11 +2,9 @@ package net.cactii.flash;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -22,24 +20,6 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    public static MainActivity ma;
-    public Camera mCamera;
-    private TorchWidgetProvider mWidgetProvider;
-    // Thread to handle strobing
-    private boolean mTorchOn;
-    // Strobe frequency slider.
-    private SeekBar slider;
-    // Period of strobe, in milliseconds
-    private int strobeperiod;
-    // Label showing strobe frequency
-    private TextView strobeLabel;
-    // On button
-    private Button buttonOn;
-    // Strobe toggle
-    private CheckBox buttonStrobe;
-    // Strobe has timed out
-    private Context context;
-
     /**
      * Called when the activity is first created.
      */
@@ -47,28 +27,20 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.mainnew);
-        ma = this;
-        context = this.getApplicationContext();
-        buttonOn = (Button) findViewById(R.id.buttonOn);
-        buttonStrobe = (CheckBox) findViewById(R.id.strobe);
-        strobeLabel = (TextView) findViewById(R.id.strobeTimeLabel);
-        slider = (SeekBar) findViewById(R.id.slider);
-
-        strobeperiod = 100;
-        mTorchOn = false;
-
-        mWidgetProvider = TorchWidgetProvider.getInstance();
+        final Button buttonOn = (Button) findViewById(R.id.buttonOn);
+        final CheckBox buttonStrobe = (CheckBox) findViewById(R.id.strobe);
+        final TextView strobeLabel = (TextView) findViewById(R.id.strobeTimeLabel);
+        final SeekBar slider = (SeekBar) findViewById(R.id.slider);
 
         // Preferences
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final int strobeperiod = preferences.getInt("strobeperiod", 100);
 
         strobeLabel.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 buttonStrobe.setChecked(!buttonStrobe.isChecked());
             }
-
         });
 
         buttonOn.setOnClickListener(new OnClickListener() {
@@ -79,16 +51,14 @@ public class MainActivity extends Activity {
                 intent.putExtra("strobe", buttonStrobe.isChecked());
                 intent.putExtra("period", strobeperiod);
 
-                if (!mTorchOn) {
+                if (!TorchService.isRunning(getApplicationContext())) {
                     startService(intent);
-                    mTorchOn = true;
                     buttonOn.setText("Off");
                     buttonStrobe.setEnabled(false);
                     if (!buttonStrobe.isChecked())
                         slider.setEnabled(false);
                 } else {
                     stopService(intent);
-                    mTorchOn = false;
                     buttonOn.setText("On");
                     buttonStrobe.setEnabled(true);
                     slider.setEnabled(true);
@@ -101,17 +71,20 @@ public class MainActivity extends Activity {
         setProgressBarVisibility(true);
         slider.setHorizontalScrollBarEnabled(true);
         slider.setProgress(200 - preferences.getInt("strobeperiod", 100));
-        strobeperiod = preferences.getInt("strobeperiod", 100);
         strobeLabel.setText("Strobe frequency: " + 500 / strobeperiod + "Hz");
         slider.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress,
                                           boolean fromUser) {
-                strobeperiod = 201 - progress;
+                int strobeperiod = 201 - progress;
                 if (strobeperiod < 20)
                     strobeperiod = 20;
                 strobeLabel.setText("Strobe frequency: " + 500 / strobeperiod + "Hz");
+
+                preferences.edit()
+                        .putInt("strobeperiod", strobeperiod)
+                        .apply();
 
                 Intent intent = new Intent("net.cactii.flash.SET_STROBE");
                 intent.putExtra("period", strobeperiod);
@@ -141,10 +114,6 @@ public class MainActivity extends Activity {
     }
 
     public void onPause() {
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .edit()
-                .putInt("strobeperiod", this.strobeperiod)
-                .apply();
         this.updateWidget();
         super.onPause();
     }
@@ -155,12 +124,13 @@ public class MainActivity extends Activity {
     }
 
     public void onResume() {
-        if (TorchService.isRunning(context)) {
-            buttonOn.setText("Off");
+        if (TorchService.isRunning(this)) {
+            ((Button) findViewById(R.id.buttonOn)).setText("Off");
+
+            final CheckBox buttonStrobe = (CheckBox) findViewById(R.id.strobe);
             buttonStrobe.setEnabled(false);
             if (!buttonStrobe.isChecked())
-                slider.setEnabled(false);
-            this.mTorchOn = true;
+                findViewById(R.id.slider).setEnabled(false);
         }
         this.updateWidget();
         super.onResume();
@@ -196,6 +166,6 @@ public class MainActivity extends Activity {
     }
 
     void updateWidget() {
-        this.mWidgetProvider.updateAllStates(context);
+        TorchWidgetProvider.getInstance().updateAllStates(this);
     }
 }

@@ -82,8 +82,6 @@ public class TorchService extends Service {
             e.printStackTrace();
         }
 
-        MainActivity.ma.mCamera = mCamera;
-
         if (intent != null && intent.getBooleanExtra("strobe", false)) {
             this.mCamera.startPreview();
             this.mStrobePeriod = intent.getIntExtra("period", 200) / 4;
