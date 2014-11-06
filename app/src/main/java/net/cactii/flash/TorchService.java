@@ -1,10 +1,13 @@
 package net.cactii.flash;
 
+import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +30,17 @@ public class TorchService extends Service {
     private IntentReceiver mReceiver;
 
     private Runnable mStrobeRunnable;
+
+    static boolean isRunning(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningServiceInfo> svcList = am.getRunningServices(100);
+        for (ActivityManager.RunningServiceInfo serviceInfo : svcList) {
+            ComponentName serviceName = serviceInfo.service;
+            if (serviceName.getClassName().endsWith(".TorchService"))
+                return true;
+        }
+        return false;
+    }
 
     public void onCreate() {
         this.mStrobeRunnable = new Runnable() {

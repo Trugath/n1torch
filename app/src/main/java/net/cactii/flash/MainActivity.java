@@ -1,10 +1,7 @@
 package net.cactii.flash;
 
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.AlertDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,8 +19,6 @@ import android.widget.CheckBox;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
-
-import java.util.List;
 
 public class MainActivity extends Activity {
 
@@ -160,7 +155,7 @@ public class MainActivity extends Activity {
     }
 
     public void onResume() {
-        if (this.TorchServiceRunning(context)) {
+        if (TorchService.isRunning(context)) {
             buttonOn.setText("Off");
             buttonStrobe.setEnabled(false);
             if (!buttonStrobe.isChecked())
@@ -169,23 +164,6 @@ public class MainActivity extends Activity {
         }
         this.updateWidget();
         super.onResume();
-    }
-
-    private boolean TorchServiceRunning(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningServiceInfo> svcList = am.getRunningServices(100);
-
-        if (!(svcList.size() > 0))
-            return false;
-        for (int i = 0; i < svcList.size(); i++) {
-            RunningServiceInfo serviceInfo = svcList.get(i);
-            ComponentName serviceName = serviceInfo.service;
-            if (serviceName.getClassName().endsWith(".TorchService")
-                    || serviceName.getClassName().endsWith(".RootTorchService"))
-                return true;
-        }
-        return false;
     }
 
     @Override
@@ -220,5 +198,4 @@ public class MainActivity extends Activity {
     void updateWidget() {
         this.mWidgetProvider.updateAllStates(context);
     }
-
 }

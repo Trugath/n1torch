@@ -1,8 +1,5 @@
 package net.cactii.flash;
 
-import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningServiceInfo;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -11,12 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
-
-import java.util.List;
 
 public class TorchWidgetProvider extends AppWidgetProvider {
 
@@ -66,9 +60,8 @@ public class TorchWidgetProvider extends AppWidgetProvider {
             Log.d("TorchWidget", "Button Id is: " + widgetId);
             if (buttonId == 0) {
                 Intent pendingIntent;
-                Bundle extras = intent.getExtras();
 
-                if (this.TorchServiceRunning(context)) {
+                if (TorchService.isRunning(context)) {
                     context.stopService(new Intent(context, TorchService.class));
                     this.updateAllStates(context);
                     return;
@@ -81,7 +74,7 @@ public class TorchWidgetProvider extends AppWidgetProvider {
                     pendingIntent.putExtra("strobe", true);
                     pendingIntent.putExtra("period", mPrefs.getInt("widget_strobe_freq_" + widgetId, 200));
                 }
-                if (this.TorchServiceRunning(context)) {
+                if (TorchService.isRunning(context)) {
                     context.stopService(pendingIntent);
                 } else {
                     context.startService(pendingIntent);
@@ -97,23 +90,6 @@ public class TorchWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    private boolean TorchServiceRunning(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-
-        List<ActivityManager.RunningServiceInfo> svcList = am.getRunningServices(100);
-
-        if (!(svcList.size() > 0))
-            return false;
-        for (int i = 0; i < svcList.size(); i++) {
-            RunningServiceInfo serviceInfo = svcList.get(i);
-            ComponentName serviceName = serviceInfo.service;
-            if (serviceName.getClassName().endsWith(".TorchService")
-                    || serviceName.getClassName().endsWith(".RootTorchService"))
-                return true;
-        }
-        return false;
-    }
-
     public void updateAllStates(Context context) {
         final AppWidgetManager am = AppWidgetManager.getInstance(context);
         for (int id : am.getAppWidgetIds(THIS_APPWIDGET))
@@ -124,7 +100,7 @@ public class TorchWidgetProvider extends AppWidgetProvider {
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if (this.TorchServiceRunning(context)) {
+        if (TorchService.isRunning(context)) {
             views.setImageViewResource(R.id.img_torch, R.drawable.icon);
         } else {
             views.setImageViewResource(R.id.img_torch, R.drawable.widget_off);
