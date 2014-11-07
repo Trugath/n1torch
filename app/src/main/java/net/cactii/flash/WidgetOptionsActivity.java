@@ -1,12 +1,12 @@
 package net.cactii.flash;
 
+import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.util.Log;
 
-public class WidgetOptionsActivity extends PreferenceActivity {
+public class WidgetOptionsActivity extends Activity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
